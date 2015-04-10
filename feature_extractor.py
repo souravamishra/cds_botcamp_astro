@@ -10,7 +10,6 @@ def fold_time_series(time_point, period, div_period):
     real_period = period / div_period
     return time_point % real_period  # modulo real_period
  
- 
 def unfold_sample(x, color):
     """Operates inplace"""
     real_period = x['period'] / x['div_period']
@@ -20,23 +19,23 @@ def unfold_sample(x, color):
     x['light_points_%s' % color] = np.array(x['light_points_%s' % color])[order]
     x['error_points_%s' % color] = np.array(x['error_points_%s' % color])[order]
     x['time_points_%s' % color] = np.array(x['time_points_%s' % color])[order]
- 
-class FeatureExtractor(object):
- 
+
+class FeatureExtractor():
+
     def __init__(self):
         pass
- 
+
     def fit(self, X_dict, y):
         pass
- 
-    def transform(self, X_dict):
+
+    def transform( self, X_dict ):
         num_points_per_period = 200
         bins_per_period = 15
         sampling_rate = num_points_per_period / bins_per_period
         t_test = np.linspace(-2 * np.pi, 4 * np.pi, 3 * num_points_per_period)
         num_gp_bins = 10
         gp_bins = [i * 2 * np.pi / num_gp_bins for i in range(num_gp_bins + 1)]
-   
+
         X = []
         ii = 0
         for x in X_dict:
@@ -50,7 +49,7 @@ class FeatureExtractor(object):
                 x_train = x['phase_' + color]
                 y_train = x['light_points_' + color]
                 y_sigma = x['error_points_' + color]
- 
+
                 # array of array of point indices belonging to bins
                 x_train_digitized = np.digitize(x_train, gp_bins) - 1
                 # boolean array of not empty bins
@@ -74,7 +73,7 @@ class FeatureExtractor(object):
                 # array of combined error bars (quadrature mean) belonging to bins
                 y_sigma = np.array([np.sqrt((y_sigma_binned[i] * y_sigma_binned[i]).mean())
                                     for i in range(num_gp_bins)])
- 
+
                 try:
                     gp = GaussianProcess(regr='constant', theta0=1./1.0, thetaL=1./50., thetaU=1./0.1, 
                                  corr=squared_exponential_periodic_1D,
@@ -105,7 +104,7 @@ class FeatureExtractor(object):
                 gp_samples_normalized = 1 - (gp_samples - min_y) / amplitude
                 for gp_sample in gp_samples_normalized:
                     x_new.append(gp_sample)
- 
+
             X.append(x_new)
-            
+
         return np.array(X)  
