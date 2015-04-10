@@ -30,7 +30,7 @@ class FeatureExtractor():
 
     def transform( self, X_dict ):
         num_points_per_period = 200
-        bins_per_period = 15
+        bins_per_period = 18
         sampling_rate = num_points_per_period / bins_per_period
         t_test = np.linspace(-2 * np.pi, 4 * np.pi, 3 * num_points_per_period)
         num_gp_bins = 10
